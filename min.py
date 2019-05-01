@@ -14,9 +14,10 @@ class SegmentTree:
 
         self._built_tree(0, len(self._data) - 1, 0)
 
-    # TODO: update raw data value at index i
+    # update raw data value at index i
     def update(self, i, val):
-        pass
+        self._data[i] = val
+        self._update(i, 0, len(self._data) - 1, 0)
 
     # get result of interval [start, end]
     # , in this case result is "min"
@@ -38,7 +39,7 @@ class SegmentTree:
             # node interval: [start:start]
 
             # TODO: modify here
-            # depends on usage, in "min" case, the value should be min of interval
+            # depends on the usage, in "min" case, the value stored is exactly the value of data point
             self._tree[position] = self._data[start]
         else:
             # is branch node:
@@ -49,7 +50,7 @@ class SegmentTree:
             self._built_tree(mid + 1, end, position * 2 + 2)
 
             # TODO: modify here
-            # depends on usage, in this case the value in tree is "min"
+            # depends on the usage, in "min" case, the value stored is the minimum of two children
             self._tree[position] = min(self._tree[position * 2 + 1], self._tree[position * 2 + 2])
 
     # start, end: queried range of raw data
@@ -73,8 +74,32 @@ class SegmentTree:
             res_right = self._query(start, end, node_mid + 1, node_end, position * 2 + 2)
 
             # TODO: modify here
-            # depends on usage, in "min" case, the value should be min of left child & right child
+            # depends on the usage, in "min" case, the value is the minimum of two children
             return min(res_left, res_right)
+
+    # i: index of updated raw data
+    # node_start, node_end: raw data range of current node
+    # position: position of current node in tree
+    def _update(self, i, node_start, node_end, position):
+        if i == node_start and i == node_end:
+            # is leaf node:
+            # node interval: [node_start:node_start]
+
+            # TODO: modify here
+            # depends on the usage, in "min" case, the value stored is exactly the value of data point
+            self._tree[position] = self._data[i]
+        elif node_start <= i <= node_end:
+            # is branch node:
+            # node interval: [node_start:node_end]
+
+            node_mid = node_start + (node_end - node_start) / 2
+
+            self._update(i, node_start, node_mid, position * 2 + 1)
+            self._update(i, node_mid + 1, node_end, position * 2 + 2)
+
+            # TODO: modify here
+            # depends on the usage, in "min" case, the value stored is the minimum of two children
+            self._tree[position] = min(self._tree[position * 2 + 1], self._tree[position * 2 + 2])
 
 
 def test(i, j, st):
@@ -84,6 +109,25 @@ def test(i, j, st):
 # test
 a = [5, 9, 8, 10, 3]
 tree = SegmentTree(a)
+test(0, 2, tree)
+test(2, 4, tree)
+test(0, 4, tree)
+test(1, 3, tree)
+test(0, 3, tree)
+test(1, 4, tree)
+test(2, 3, tree)
+test(3, 4, tree)
+test(0, 1, tree)
+test(1, 2, tree)
+test(0, 0, tree)
+test(1, 1, tree)
+test(2, 2, tree)
+test(3, 3, tree)
+test(4, 4, tree)
+
+print ""
+print "test update..."
+tree.update(2, -1)
 test(0, 2, tree)
 test(2, 4, tree)
 test(0, 4, tree)
